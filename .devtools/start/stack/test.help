@@ -1,0 +1,5 @@
+`start/stack/test` spins up a full test stack.
+
+This test stack includes a db stack with forced network latency and a test runner.
+
+See `<repo>/docker/repl-lag-test/docker-compose.yaml` for more details about the stack.

@@ -1,0 +1,12 @@
+{
+  "dockerComposeFile": "../docker/repl-lag-vscode/docker-compose.yaml",
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "shd101wyy.markdown-preview-enhanced"
+  ],
+  "name": "repl-lag",
+  "remoteUser": "node",
+  "service": "vscode",
+  "workspaceFolder": "/mnt/repl-lag"
+}

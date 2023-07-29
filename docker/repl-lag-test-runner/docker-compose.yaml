@@ -1,0 +1,15 @@
+networks:
+  db-fore-proxy:
+    name: xdsgs.repl-lag.db.fore-proxy.net
+
+services:
+  test-runner:
+    container_name: xdsgs.repl-lag.test-runner
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      LOG_SHOULD_PRETTY_PRINT: ${LOG_SHOULD_PRETTY_PRINT:-true}
+      MONGODB_URI: mongodb://xdsgs.repl-lag.db.proxy:27017/?replicaSet=rs0
+    image: xdsgs/repl-lag/test-runner
+    init: true
+    networks:
+      - db-fore-proxy

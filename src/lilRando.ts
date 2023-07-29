@@ -1,0 +1,1 @@
+export const lilRando = () => Math.floor(Math.random() * (16 ** 4)).toString(16);

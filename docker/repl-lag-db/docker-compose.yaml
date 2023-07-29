@@ -1,0 +1,78 @@
+networks:
+  aft-proxy:
+    name: xdsgs.repl-lag.db.aft-proxy.net
+  fore-proxy:
+    name: xdsgs.repl-lag.db.fore-proxy.net
+
+services:
+  primary:
+    command: --replSet rs0 --noauth
+    container_name: xdsgs.repl-lag.db.primary
+    healthcheck:
+      test: mongo --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 2s
+    image: mongo:4.2
+    init: true
+    networks:
+      - fore-proxy
+
+  secondary-0:
+    container_name: xdsgs.repl-lag.db.secondary-0
+    extends:
+      service: primary
+    networks:
+      - aft-proxy
+
+  secondary-1:
+    container_name: xdsgs.repl-lag.db.secondary-1
+    extends:
+      service: primary
+    networks:
+      - aft-proxy
+
+  proxy:
+    cap_add:
+      - NET_ADMIN
+    command: [nginx-debug, "-g", "daemon off;"]
+    container_name: xdsgs.repl-lag.db.proxy
+    healthcheck:
+      test: curl localhost/health
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 2s
+    environment:
+      INTERFACE: eth0
+      LATENCY_MS: ${LATENCY_MS:-625}
+    image: xdsgs/repl-lag/proxy
+    init: true
+    networks:
+      aft-proxy:
+        # This ensures that `eth0` will face `aft-proxy`
+        priority: 1
+      fore-proxy:
+        # This ensures that `eth1` will face this `fore-proxy`
+        priority: 0
+    volumes:
+      - source: ./nginx.conf
+        target: /etc/nginx/nginx.conf
+        type: bind
+
+  replset-init:
+    container_name: xdsgs.repl-lag.db.replset-init
+    depends_on:
+      proxy:
+        condition: service_healthy
+    environment:
+      PRIMARY_URL: xdsgs.repl-lag.db.primary
+      REPLSET_NAME: rs0
+      PRIMARY_NODE_URL: xdsgs.repl-lag.db.proxy:27017
+      SECONDARY_NODE_0_URL: xdsgs.repl-lag.db.proxy:27018
+      SECONDARY_NODE_1_URL: xdsgs.repl-lag.db.proxy:27019
+    image: xdsgs/repl-lag/replset-init
+    init: true
+    networks:
+      - fore-proxy

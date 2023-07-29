@@ -1,0 +1,3 @@
+The `build/image/test-runner` command builds the development image `xdsgs/repl-lag/test-runner`.
+
+The Dockerfile can be found in `<repo>/docker/repl-lag-test`.

@@ -1,0 +1,7 @@
+`start/stack/db` starts a db stack.
+
+The primary database in this stack is accessible from the `vscode` development container, and is a target for the `test-runner` stack.
+
+Set the `LATENCY_MS` environment variable to change the simulated network latency in this stack.
+
+See `<repo>/docker/repl-lag-db/docker-compose.yaml` for more details about the stack.

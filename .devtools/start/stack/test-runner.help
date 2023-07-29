@@ -1,0 +1,3 @@
+`start/stack/test-runner` runs db tests against an extant `db` stack.
+
+See `<repo>/docker/repl-lag-test-runner/docker-compose.yaml` for stack details.

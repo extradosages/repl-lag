@@ -1,0 +1,52 @@
+networks:
+  aft-proxy:
+    name: xdsgs.repl-lag.latency-test.aft-proxy.net
+  fore-proxy:
+    name: xdsgs.repl-lag.latency-test.fore-proxy.net
+
+services:
+  iperf-client:
+    command: --client xdsgs.repl-lag.latency-test.proxy --verbose --time 60
+    container_name: xdsgs.repl-lag.latency-test.iperf-client
+    depends_on:
+      proxy:
+        condition: service_healthy
+    image: networkstatic/iperf3
+    networks:
+      - fore-proxy
+
+  iperf-server:
+    command: --server
+    container_name: xdsgs.repl-lag.latency-test.iperf-server
+    image: networkstatic/iperf3
+    init: true
+    networks:
+      - aft-proxy
+
+  proxy:
+    cap_add:
+      - NET_ADMIN
+    command: [nginx-debug, "-g", "daemon off;"]
+    container_name: xdsgs.repl-lag.latency-test.proxy
+    healthcheck:
+      test: curl localhost/health
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 2s
+    environment:
+      INTERFACE: eth0
+      LATENCY_MS: ${LATENCY_MS:-1500}
+    image: xdsgs/repl-lag/proxy
+    init: true
+    networks:
+      aft-proxy:
+        # This ensures that `eth0` will face `aft-proxy`
+        priority: 1
+      fore-proxy:
+        # This ensures that `eth1` will face this `fore-proxy`
+        priority: 0
+    volumes:
+      - source: ./nginx.conf
+        target: /etc/nginx/nginx.conf
+        type: bind

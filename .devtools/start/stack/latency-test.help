@@ -1,0 +1,6 @@
+`start/stack/latency-test` runs latency tests across the proxy service used to simulate latency.
+
+This stack replicates the proxy service used in the `db` and `test` stacks and runs an iperf client and server on opposite sides of the proxy in order to test the simulated network latency.
+Set the `LATENCY_MS` environment variable to change the simulated network latency in this stack.
+
+See `<repo>/docker/repl-lag-latency-test/docker-compose.yaml` for more details about the stack.

@@ -1,0 +1,3 @@
+The `build/image/proxy` command builds the development image `xdsgs/repl-lag/proxy`.
+
+The Dockerfile can be found in `<repo>/docker/repl-lag-proxy`.

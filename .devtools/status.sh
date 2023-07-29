@@ -1,0 +1,1 @@
+docker container ls --format '{ "name": "{{.Names}}", "created": "{{.RunningFor}}",  "state": "{{.State}}", "status": "{{.Status}}" }' | grep xdsgs.repl-lag

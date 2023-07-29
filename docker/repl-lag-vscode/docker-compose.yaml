@@ -1,0 +1,28 @@
+networks:
+  db-fore-proxy:
+    name: xdsgs.repl-lag.db.fore-proxy.net
+
+services:
+  vscode:
+    build:
+      context: ../..
+      dockerfile: docker/repl-lag-vscode/Dockerfile
+    container_name: xdsgs.repl-lag.vscode
+    image: xdsgs/repl-lag/vscode
+    networks:
+      - db-fore-proxy
+    volumes:
+      - type: bind
+        source: ../..
+        target: /mnt/repl-lag
+      - type: bind
+        source: ${HOME}/.npmrc
+        target: /home/node/.npmrc
+      - type: bind
+        source: ${HOME}/.ssh
+        target: /home/node/.ssh
+      - type: bind
+        source: ${HOME}/.graphite_user_config
+        target: /home/analyst/.graphite_user_config
+
+version: "3.8"

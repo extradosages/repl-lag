@@ -1,0 +1,3 @@
+`start/watch-replication` starts a little process which continually pings the primary in the db stack for information on replication lag.
+
+This command only works on a development host machine.

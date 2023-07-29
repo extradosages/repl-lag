@@ -1,0 +1,92 @@
+networks:
+  high-latency:
+    name: xdsgs.repl-lag.test.high-latency.net
+  low-latency:
+    name: xdsgs.repl-lag.test.low-latency.net
+
+services:
+  primary:
+    command: --replSet rs0 --noauth
+    container_name: xdsgs.repl-lag.test.primary
+    healthcheck:
+      test: mongo --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 2s
+    image: mongo:4.2
+    init: true
+    networks:
+      - low-latency
+
+  secondary-0:
+    container_name: xdsgs.repl-lag.test.secondary-0
+    extends:
+      service: primary
+    networks:
+      - low-latency
+
+  secondary-1:
+    container_name: xdsgs.repl-lag.test.secondary-1
+    extends:
+      service: primary
+    networks:
+      - high-latency
+
+  proxy:
+    cap_add:
+      - NET_ADMIN
+    command: [nginx-debug, "-g", "daemon off;"]
+    container_name: xdsgs.repl-lag.test.proxy
+    healthcheck:
+      test: curl localhost/health
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 2s
+    environment:
+      INTERFACE: eth0
+      LATENCY_MS: ${LATENCY_MS:-1500}
+    image: xdsgs/repl-lag/proxy
+    init: true
+    networks:
+      high-latency:
+        # This ensures that `eth0` will face `high-latency`
+        priority: 1
+      low-latency:
+        # This ensures that `eth1` will face this `low-latency`
+        priority: 0
+    volumes:
+      - source: ./nginx.conf
+        target: /etc/nginx/nginx.conf
+        type: bind
+
+  replset-init:
+    container_name: xdsgs.repl-lag.test.replset-init
+    depends_on:
+      proxy:
+        condition: service_healthy
+    environment:
+      PRIMARY_URL: xdsgs.repl-lag.test.primary
+      REPLSET_NAME: rs0
+      PRIMARY_NODE_URL: xdsgs.repl-lag.test.proxy:27017
+      SECONDARY_NODE_0_URL: xdsgs.repl-lag.test.proxy:27018
+      SECONDARY_NODE_1_URL: xdsgs.repl-lag.test.proxy:27019
+    image: xdsgs/repl-lag/replset-init
+    init: true
+    networks:
+      - low-latency
+
+  runner:
+    container_name: xdsgs.repl-lag.test.runner
+    depends_on:
+      replset-init:
+        condition: service_completed_successfully
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      LOG_SHOULD_PRETTY_PRINT: ${LOG_SHOULD_PRETTY_PRINT:-true}
+      MONGODB_URI: mongodb://xdsgs.repl-lag.test.proxy:27017/?replicaSet=rs0
+    image: xdsgs/repl-lag/test-runner
+    init: true
+    networks:
+      - low-latency

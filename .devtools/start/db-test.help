@@ -1,0 +1,5 @@
+`start/db-test` invokes jest with the `dbtest` configuration.
+
+This command works on both development host machines and guest machines; in fact, it is the entrypoint for the `test-runner` image.
+
+See `<repo>/jest.config.dbtest.json` for configuration details.

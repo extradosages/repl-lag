@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "downlevelIteration": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": ["ESNext"],
+        "module": "commonjs",
+        "outDir": "./dist",
+        "strict": true,
+        "target": "ESNext"
+    }
+}

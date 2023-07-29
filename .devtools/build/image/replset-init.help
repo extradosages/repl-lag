@@ -1,0 +1,3 @@
+The `build/image/replset-init` command builds the development image `xdsgs/repl-lag/db/replset-init`.
+
+The Dockerfile can be found in `<repo>/docker/repl-lag-db/replset-init`.

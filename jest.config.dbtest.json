@@ -1,0 +1,8 @@
+{
+  "displayName": "DB-TEST",
+  "preset": "ts-jest",
+  "slowTestThreshold": 120,
+  "testEnvironment": "node",
+  "testMatch": ["**/*.dbtest.ts"],
+  "testTimeout": 240000
+}

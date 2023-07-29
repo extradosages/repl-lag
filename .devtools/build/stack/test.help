@@ -1,0 +1,4 @@
+The `build/stack/test` command builds the entire development test stack.
+
+See `<repo>/docker/repl-lag-test/docker-compose.yaml` for a declaration of the test stack and a list of images involved.
+See the `build/image/` command for commands which build test stack images individually.
